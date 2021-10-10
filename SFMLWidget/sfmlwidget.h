@@ -33,6 +33,7 @@ class SFMLWidget : public QWidget, public sf::RenderWindow
     virtual QPaintEngine *paintEngine() const override;
     virtual void paintEvent(QPaintEvent *) override;
     virtual void showEvent(QShowEvent *) override;
+    virtual void resizeEvent(QResizeEvent *) override;
 
     virtual void mousePressEvent(QMouseEvent *) override;
 

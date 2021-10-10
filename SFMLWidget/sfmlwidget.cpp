@@ -70,6 +70,12 @@ void SFMLWidget::showEvent(QShowEvent *)
     isInited = true;
 }
 
+void SFMLWidget::resizeEvent(QResizeEvent *)
+{
+    setSize(sf::Vector2u(size().width(), size().height()));
+    repaint();
+}
+
 void SFMLWidget::mousePressEvent(QMouseEvent *event)
 {
     dx = event->pos().x() - float(size().width()) / 2;
