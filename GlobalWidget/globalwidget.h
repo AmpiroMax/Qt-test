@@ -10,7 +10,6 @@ class GlobalWidget : public QWidget
     Q_OBJECT
   private:
     SFMLWidget *sfmlWidget1;
-
     QGridLayout *grid;
 
   public:

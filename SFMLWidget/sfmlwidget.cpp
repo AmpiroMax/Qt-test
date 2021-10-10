@@ -5,7 +5,7 @@
 
 SFMLWidget::SFMLWidget(QWidget *parent)
     : QWidget(parent),
-      sf::RenderWindow(sf::VideoMode(), "Widgets layout test", sf::Style::Fullscreen, sf::ContextSettings(24)),
+      sf::RenderWindow(sf::VideoMode(300, 500), "Widgets layout test", sf::Style::Default, sf::ContextSettings(24)),
       shape(10),
       vLine(sf::Lines, 2),
       hLine(sf::Lines, 2)
