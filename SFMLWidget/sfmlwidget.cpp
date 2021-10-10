@@ -3,17 +3,24 @@
 
 #include <QPainter>
 
+constexpr int circleRadius = 10;
+
 SFMLWidget::SFMLWidget(QWidget *parent)
     : QWidget(parent),
       sf::RenderWindow(sf::VideoMode(0, 0), "Widgets layout test", sf::Style::Default, sf::ContextSettings(24)),
-      shape(10),
+      circle(circleRadius),
       vLine(sf::Lines, 2),
       hLine(sf::Lines, 2)
 {
+    // Отрибуты, необходимые для правильного отображения и использования
+    // SFML в QWidget. Для чего необходимо каждое из них, написано в
+    // документации Qt. Возможно в будующем я поясню для чего каждый
     setAttribute(Qt::WA_PaintOnScreen);
     setAttribute(Qt::WA_OpaquePaintEvent);
     setAttribute(Qt::WA_NoSystemBackground);
 
+    // Устанавливаю изначальную скорость
+    // и начальные перемещения
     velocity = 5;
     dx = 0;
     dy = 0;
@@ -25,77 +32,111 @@ SFMLWidget::SFMLWidget(QWidget *parent)
 
 QPaintEngine *SFMLWidget::paintEngine() const
 {
+    // В силу того, что мы рисуем в окне через SFML, были установлены
+    // определенные отрибуты. Один из них требует установить возвращаемым
+    // значением в данной функции nullptr, чтобы в случае, если кто-то захочет
+    // что-то рисовать через Qt, у него это не получччилось, т.к. такой
+    // возможности здесь неподразумевается
     return nullptr;
 }
 
 void SFMLWidget::paintEvent(QPaintEvent *)
 {
+    // Очишаем экран
     clear(clearColor);
 
-    draw(shape);
+    // Отрисовываем необходимые объекты
+    draw(circle);
     draw(vLine);
     draw(hLine);
 
+    // Отображаем всё в окне
     display();
-
-    //    QPen pen(Qt::black, 2, Qt::SolidLine);
-    //    QPainter qp(this);
-    //    qp.setPen(pen);
-    //    qp.setPen(QColor("#d4d4d4"));
-    //    qp.drawLine(20, 40, 250, 40);
 }
 
 void SFMLWidget::showEvent(QShowEvent *)
 {
+    // Проделываем данные операции только один раз,
+    // когда наше окно было впервые отображено на экране
     if (isInited)
         return;
 
+    // Создаю SFML окно, но не новое, а передаю контроль ему над
+    // уже созданым QWidget, в котором и будет происходить отрисовка
     RenderWindow::create(sf::WindowHandle(winId()));
-    // minimapView.setViewport(sf::FloatRect(0.75f, 0.f, 0.25f, 0.25f));
 
+    // Соединяю сигнал таймера со слотом этого виджета.
+    // Запускаю таймер
     connect(&timer, &QTimer::timeout, this, &SFMLWidget::onTimeout);
     timer.start();
 
-    printf("SFML win size %d, %d \n", RenderWindow::getSize().x, RenderWindow::getSize().y);
-    printf("width, height = %d, %d \n", size().width(), size().height());
-
+    // Две _|_ линни, просто для ориентации шарика в пространстве
+    // Мне нужно было что-то, относительно чего будет шарик двигаться
     vLine[0].position = sf::Vector2f(0, size().height() / 2);
     vLine[1].position = sf::Vector2f(size().width(), size().height() / 2);
 
     hLine[0].position = sf::Vector2f(size().width() / 2, 0);
     hLine[1].position = sf::Vector2f(size().width() / 2, size().height());
 
-    shape.setPosition(size().width() / 2 - 10, size().height() / 2 - 10);
+    // Устанавливаем позицию шарика, которым "условно" мы управляем
+    // Также устанавливаем его центр координат (origin)
+    circle.setOrigin(circleRadius, circleRadius);
+    circle.setPosition(size().width() / 2, size().height() / 2);
 
+    // Изначальные настройки положения камеры
     view.setCenter(size().width() / 2, size().height() / 2);
     view.setSize(size().width(), size().height());
+
     isInited = true;
 }
 
 void SFMLWidget::resizeEvent(QResizeEvent *)
 {
+    // В случае изменения размера виджета, необходимо поменять
+    // размер и SFML RenderWindow окну, для правильного отображения
+    // Также после смены размера, необходимо поставить центр обзора (view)
+    // на новое положение
     setSize(sf::Vector2u(size().width(), size().height()));
     view.setSize(size().width(), size().height());
     repaint();
 }
 
-void SFMLWidget::mousePressEvent(QMouseEvent *event)
+void SFMLWidget::mouseMoveEvent(QMouseEvent *event)
 {
+    // Обновленик вектора передвижения
+    // Начальная точка - центр окна
+    // Конечная точка - положение курсора
     dx = event->pos().x() - float(size().width()) / 2;
     dy = event->pos().y() - float(size().height()) / 2;
 
-    printf("-------- \n dx, dy = %f, %f \n", dx, dy);
-    float olddx = dx;
-    dx = dx / sqrt(dx * dx + dy * dy);
-    dy = dy / sqrt(olddx * olddx + dy * dy);
+    // В случае, если dx или dy меньше epsilon,
+    // то можно считать их достаточно малымми и обнулить
+    // Это решает проблему деления на 0
 
-    printf("dx, dy = %f, %f \n", dx, dy);
+    // Задал epsilon равным радиусу шарика, чтоб при нажатии на него
+    // можно было остановаться
+    float epsilon = circleRadius;
+    if (abs(dx) < epsilon)
+        dx = 0;
+    if (abs(dy) < epsilon)
+        dy = 0;
+
+    // Получаю вектор единичной длины
+    float olddx = dx;
+    if (dx != 0 || dy != 0)
+    {
+        dx = dx / sqrt(dx * dx + dy * dy);
+        dy = dy / sqrt(olddx * olddx + dy * dy);
+    }
 }
 
 void SFMLWidget::onTimeout()
 {
-    shape.move(dx * velocity, dy * velocity);
+    // Раз в определенное время (оно задано в конструкторе)
+    // обновляю экран, передвигая и по новой отрисовывая объекты
+    circle.move(dx * velocity, dy * velocity);
     view.move(dx * velocity, dy * velocity);
     setView(view);
+
     repaint();
 }

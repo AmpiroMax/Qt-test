@@ -17,7 +17,7 @@ class SFMLWidget : public QWidget, public sf::RenderWindow
 
     sf::View view;
     sf::View minimapView;
-    sf::CircleShape shape;
+    sf::CircleShape circle;
     sf::VertexArray vLine;
     sf::VertexArray hLine;
 
@@ -35,7 +35,7 @@ class SFMLWidget : public QWidget, public sf::RenderWindow
     virtual void showEvent(QShowEvent *) override;
     virtual void resizeEvent(QResizeEvent *) override;
 
-    virtual void mousePressEvent(QMouseEvent *) override;
+    virtual void mouseMoveEvent(QMouseEvent *) override;
 
   private slots:
     void onTimeout();
