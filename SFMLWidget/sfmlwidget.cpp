@@ -51,7 +51,7 @@ void SFMLWidget::showEvent(QShowEvent *)
         return;
 
     RenderWindow::create(sf::WindowHandle(winId()));
-    minimapView.setViewport(sf::FloatRect(0.75f, 0.f, 0.25f, 0.25f));
+    // minimapView.setViewport(sf::FloatRect(0.75f, 0.f, 0.25f, 0.25f));
 
     connect(&timer, &QTimer::timeout, this, &SFMLWidget::onTimeout);
     timer.start();
@@ -66,13 +66,16 @@ void SFMLWidget::showEvent(QShowEvent *)
     hLine[1].position = sf::Vector2f(size().width() / 2, size().height());
 
     shape.setPosition(size().width() / 2 - 10, size().height() / 2 - 10);
+
     view.setCenter(size().width() / 2, size().height() / 2);
+    view.setSize(size().width(), size().height());
     isInited = true;
 }
 
 void SFMLWidget::resizeEvent(QResizeEvent *)
 {
     setSize(sf::Vector2u(size().width(), size().height()));
+    view.setSize(size().width(), size().height());
     repaint();
 }
 
