@@ -17,16 +17,13 @@ DEPENDPATH +=  $$PWD/SFML/include/
 SOURCES += \
     GlobalWidget/globalwidget.cpp \
     SFMLWidget/sfmlwidget.cpp \
-    main.cpp \
-    mainwindow.cpp
+    main.cpp
 
 HEADERS += \
     GlobalWidget/globalwidget.h \
-    SFMLWidget/sfmlwidget.h \
-    mainwindow.h
+    SFMLWidget/sfmlwidget.h
 
-FORMS += \
-    mainwindow.ui
+FORMS +=
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

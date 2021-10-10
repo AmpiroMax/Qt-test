@@ -5,7 +5,7 @@
 
 SFMLWidget::SFMLWidget(QWidget *parent)
     : QWidget(parent),
-      sf::RenderWindow(sf::VideoMode(300, 500), "Widgets layout test", sf::Style::Default, sf::ContextSettings(24)),
+      sf::RenderWindow(sf::VideoMode(0, 0), "Widgets layout test", sf::Style::Default, sf::ContextSettings(24)),
       shape(10),
       vLine(sf::Lines, 2),
       hLine(sf::Lines, 2)
@@ -14,23 +14,13 @@ SFMLWidget::SFMLWidget(QWidget *parent)
     setAttribute(Qt::WA_OpaquePaintEvent);
     setAttribute(Qt::WA_NoSystemBackground);
 
-    velocity = 1;
+    velocity = 5;
     dx = 0;
     dy = 0;
 
     isInited = false;
     timer.setInterval(20);
     clearColor = sf::Color(0, 0, 0);
-
-    printf("width, height = %d, %d", size().width(), size().height());
-
-    vLine[0].position = sf::Vector2f(0, size().height() / 2);
-    vLine[1].position = sf::Vector2f(size().width(), size().height() / 2);
-
-    hLine[0].position = sf::Vector2f(size().width() / 2, 0);
-    hLine[1].position = sf::Vector2f(size().width() / 2, size().height());
-
-    shape.setPosition(size().width() / 2 - 10, size().height() / 2 - 10);
 }
 
 QPaintEngine *SFMLWidget::paintEngine() const
@@ -66,17 +56,29 @@ void SFMLWidget::showEvent(QShowEvent *)
     connect(&timer, &QTimer::timeout, this, &SFMLWidget::onTimeout);
     timer.start();
 
+    printf("SFML win size %d, %d \n", RenderWindow::getSize().x, RenderWindow::getSize().y);
+    printf("width, height = %d, %d \n", size().width(), size().height());
+
+    vLine[0].position = sf::Vector2f(0, size().height() / 2);
+    vLine[1].position = sf::Vector2f(size().width(), size().height() / 2);
+
+    hLine[0].position = sf::Vector2f(size().width() / 2, 0);
+    hLine[1].position = sf::Vector2f(size().width() / 2, size().height());
+
+    shape.setPosition(size().width() / 2 - 10, size().height() / 2 - 10);
+    view.setCenter(size().width() / 2, size().height() / 2);
     isInited = true;
 }
 
 void SFMLWidget::mousePressEvent(QMouseEvent *event)
 {
-    dx = event->pos().x() - size().width() / 2;
-    dy = event->pos().y() - size().height() / 2;
+    dx = event->pos().x() - float(size().width()) / 2;
+    dy = event->pos().y() - float(size().height()) / 2;
 
     printf("-------- \n dx, dy = %f, %f \n", dx, dy);
+    float olddx = dx;
     dx = dx / sqrt(dx * dx + dy * dy);
-    dy = dy / sqrt(dx * dx + dy * dy);
+    dy = dy / sqrt(olddx * olddx + dy * dy);
 
     printf("dx, dy = %f, %f \n", dx, dy);
 }
