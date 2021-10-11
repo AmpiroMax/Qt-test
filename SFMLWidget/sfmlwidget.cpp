@@ -101,6 +101,8 @@ void SFMLWidget::showEvent(QShowEvent *)
     view.setCenter(size().width() / 2, size().height() / 2);
     view.setSize(size().width(), size().height());
 
+    // Устанавливаем область отрисовки миникарты
+    // верхний правый угол
     minimapView.setViewport(sf::FloatRect(0.75f, 0, 0.25f, 0.25f));
 
     isInited = true;
