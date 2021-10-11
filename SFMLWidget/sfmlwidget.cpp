@@ -8,9 +8,9 @@ constexpr int circleRadius = 10;
 SFMLWidget::SFMLWidget(QWidget *parent)
     : QWidget(parent),
       sf::RenderWindow(sf::VideoMode(0, 0), "Widgets layout test", sf::Style::Default, sf::ContextSettings(24)),
-      circle(circleRadius),
       vLine(sf::Lines, 2),
-      hLine(sf::Lines, 2)
+      hLine(sf::Lines, 2),
+      circle(circleRadius)
 {
     // Отрибуты, необходимые для правильного отображения и использования
     // SFML в QWidget. Для чего необходимо каждое из них, написано в
@@ -42,9 +42,23 @@ QPaintEngine *SFMLWidget::paintEngine() const
 
 void SFMLWidget::paintEvent(QPaintEvent *)
 {
+    // Раз в определенное время (оно задано в конструкторе)
+    // обновляю экран, передвигая и по новой отрисовывая объекты
+    circle.move(dx * velocity, dy * velocity);
+    view.move(dx * velocity, dy * velocity);
+
     // Очишаем экран
     clear(clearColor);
 
+    // Рисуем на миникарту
+    setView(minimapView);
+    // Отрисовываем необходимые объекты
+    draw(circle);
+    draw(vLine);
+    draw(hLine);
+
+    // Рисуем главное изображение
+    setView(view);
     // Отрисовываем необходимые объекты
     draw(circle);
     draw(vLine);
@@ -86,6 +100,8 @@ void SFMLWidget::showEvent(QShowEvent *)
     // Изначальные настройки положения камеры
     view.setCenter(size().width() / 2, size().height() / 2);
     view.setSize(size().width(), size().height());
+
+    minimapView.setViewport(sf::FloatRect(0.75f, 0, 0.25f, 0.25f));
 
     isInited = true;
 }
@@ -132,11 +148,5 @@ void SFMLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void SFMLWidget::onTimeout()
 {
-    // Раз в определенное время (оно задано в конструкторе)
-    // обновляю экран, передвигая и по новой отрисовывая объекты
-    circle.move(dx * velocity, dy * velocity);
-    view.move(dx * velocity, dy * velocity);
-    setView(view);
-
     repaint();
 }

@@ -13,18 +13,17 @@ class SFMLWidget : public QWidget, public sf::RenderWindow
     Q_OBJECT
   private:
     sf::Color clearColor;
-    bool isInited;
-
     sf::View view;
     sf::View minimapView;
-    sf::CircleShape circle;
     sf::VertexArray vLine;
     sf::VertexArray hLine;
+    sf::CircleShape circle;
+    QTimer timer;
 
+    bool isInited;
     float velocity;
     float dx;
     float dy;
-    QTimer timer;
 
   public:
     explicit SFMLWidget(QWidget *parent = nullptr);

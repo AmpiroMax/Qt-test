@@ -15,7 +15,6 @@ GlobalWidget::GlobalWidget(QWidget *parent) : QWidget(parent)
 
     // Создаю виджет с SFML и задаю ему его размеры
     sfmlWidget1 = new SFMLWidget(this);
-    sfmlWidget1->setGeometry(0, 0, width, height);
 
     // Добавляю SFML виджет в QGridLayout, для корректного
     // изменения его размеров, при изменении размеров всего окна
