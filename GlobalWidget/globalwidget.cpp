@@ -20,4 +20,5 @@ GlobalWidget::GlobalWidget(QWidget *parent) : QWidget(parent)
     // изменения его размеров, при изменении размеров всего окна
     grid = new QGridLayout(this);
     grid->addWidget(sfmlWidget1);
+    grid->setContentsMargins(0, 0, 0, 0);
 }
